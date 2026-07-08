@@ -10,6 +10,8 @@ actually understand it, not just copy-paste it.
 | # | Topic | Date |
 |---|-------|------|
 | 01 | [Setting up TanStack Router with authenticated routes](./01-tanstack-router-setup.md) | 2026-07-08 |
+| 02 | [Feature folders & dynamic product routes (add/edit/view)](./02-feature-folders-and-dynamic-routes.md) | 2026-07-08 |
+| 03 | [Todo list: useState, events, and the "never mutate" rule](./03-todo-list-react-state-basics.md) | 2026-07-08 |
 
 ## How I write these docs
 
