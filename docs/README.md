@@ -13,6 +13,7 @@ actually understand it, not just copy-paste it.
 | 02 | [Feature folders & dynamic product routes (add/edit/view)](./02-feature-folders-and-dynamic-routes.md) | 2026-07-08 |
 | 03 | [Todo list: useState, events, and the "never mutate" rule](./03-todo-list-react-state-basics.md) | 2026-07-08 |
 | 04 | [The API layer: env config, axios, TanStack Query & a mock server](./04-api-layer-react-query-and-mock-server.md) | 2026-07-08 |
+| 05 | [The products data layer: my first useQuery & useMutation](./05-products-data-layer-usequery-usemutation.md) | 2026-07-09 |
 
 ## How I write these docs
 
