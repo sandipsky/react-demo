@@ -14,6 +14,8 @@ actually understand it, not just copy-paste it.
 | 03 | [Todo list: useState, events, and the "never mutate" rule](./03-todo-list-react-state-basics.md) | 2026-07-08 |
 | 04 | [The API layer: env config, axios, TanStack Query & a mock server](./04-api-layer-react-query-and-mock-server.md) | 2026-07-08 |
 | 05 | [The products data layer: my first useQuery & useMutation](./05-products-data-layer-usequery-usemutation.md) | 2026-07-09 |
+| 06 | [Giving the mock server file persistence with db.json](./06-mock-server-file-persistence.md) | 2026-07-10 |
+| 07 | [Wiring the products UI to the data layer (list, view, delete)](./07-wiring-products-ui-to-the-data-layer.md) | 2026-07-10 |
 
 ## How I write these docs
 

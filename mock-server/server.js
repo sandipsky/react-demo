@@ -1,5 +1,8 @@
 import express from 'express'
 import cors from 'cors'
+import { readFileSync, writeFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 
 const app = express()
 const PORT = 3000
@@ -13,17 +16,18 @@ app.use(
 app.use(express.json())
 
 // ---------------------------------------------------------------------------
-// In-memory "database" — resets every time the server restarts
+// File-backed "database" — data lives in db.json and survives restarts.
+// We load the whole file into memory at startup, and write the whole thing
+// back after every change. Fine for a mock; a real DB would not do this.
 // ---------------------------------------------------------------------------
-let users = [
-  { id: 1, name: 'Sandip', email: 'sandip@example.com', password: 'password123' },
-]
-let products = [
-  { id: 1, name: 'Keyboard', price: 2500, description: 'Mechanical keyboard' },
-  { id: 2, name: 'Mouse', price: 1200, description: 'Wireless mouse' },
-]
-let nextUserId = 2
-let nextProductId = 3
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const DB_PATH = join(__dirname, 'db.json')
+
+const readDb = () => JSON.parse(readFileSync(DB_PATH, 'utf-8'))
+const writeDb = (db) => writeFileSync(DB_PATH, JSON.stringify(db, null, 2))
+
+// Next id = one more than the highest existing id (0 → starts at 1 when empty)
+const nextId = (items) => items.reduce((max, item) => Math.max(max, item.id), 0) + 1
 
 const DUMMY_TOKEN = 'dummy-token-12345'
 
@@ -52,7 +56,8 @@ app.post('/auth/login', (req, res) => {
     return res.status(400).json({ message: 'email and password are required' })
   }
 
-  const user = users.find((u) => u.email === email && u.password === password)
+  const db = readDb()
+  const user = db.users.find((u) => u.email === email && u.password === password)
   if (!user) {
     return res.status(401).json({ message: 'Invalid email or password' })
   }
@@ -65,12 +70,15 @@ app.post('/auth/register', (req, res) => {
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'name, email and password are required' })
   }
-  if (users.some((u) => u.email === email)) {
+
+  const db = readDb()
+  if (db.users.some((u) => u.email === email)) {
     return res.status(409).json({ message: 'A user with this email already exists' })
   }
 
-  const user = { id: nextUserId++, name, email, password }
-  users.push(user)
+  const user = { id: nextId(db.users), name, email, password }
+  db.users.push(user)
+  writeDb(db)
   res.status(201).json(toPublicUser(user))
 })
 
@@ -78,11 +86,13 @@ app.post('/auth/register', (req, res) => {
 // Users (protected)
 // ---------------------------------------------------------------------------
 app.get('/users', requireAuth, (req, res) => {
-  res.json(users.map(toPublicUser))
+  const db = readDb()
+  res.json(db.users.map(toPublicUser))
 })
 
 app.get('/users/:id', requireAuth, (req, res) => {
-  const user = users.find((u) => u.id === Number(req.params.id))
+  const db = readDb()
+  const user = db.users.find((u) => u.id === Number(req.params.id))
   if (!user) return res.status(404).json({ message: 'User not found' })
   res.json(toPublicUser(user))
 })
@@ -92,22 +102,26 @@ app.post('/users', requireAuth, (req, res) => {
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'name, email and password are required' })
   }
-  if (users.some((u) => u.email === email)) {
+
+  const db = readDb()
+  if (db.users.some((u) => u.email === email)) {
     return res.status(409).json({ message: 'A user with this email already exists' })
   }
 
-  const user = { id: nextUserId++, name, email, password }
-  users.push(user)
+  const user = { id: nextId(db.users), name, email, password }
+  db.users.push(user)
+  writeDb(db)
   res.status(201).json(toPublicUser(user))
 })
 
 app.put('/users/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id)
-  const user = users.find((u) => u.id === id)
+  const db = readDb()
+  const user = db.users.find((u) => u.id === id)
   if (!user) return res.status(404).json({ message: 'User not found' })
 
   const { name, email, password } = req.body ?? {}
-  if (email && users.some((u) => u.email === email && u.id !== id)) {
+  if (email && db.users.some((u) => u.email === email && u.id !== id)) {
     return res.status(409).json({ message: 'A user with this email already exists' })
   }
 
@@ -117,16 +131,19 @@ app.put('/users/:id', requireAuth, (req, res) => {
     ...(email !== undefined && { email }),
     ...(password !== undefined && { password }),
   }
-  users = users.map((u) => (u.id === id ? updated : u))
+  db.users = db.users.map((u) => (u.id === id ? updated : u))
+  writeDb(db)
   res.json(toPublicUser(updated))
 })
 
 app.delete('/users/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id)
-  if (!users.some((u) => u.id === id)) {
+  const db = readDb()
+  if (!db.users.some((u) => u.id === id)) {
     return res.status(404).json({ message: 'User not found' })
   }
-  users = users.filter((u) => u.id !== id)
+  db.users = db.users.filter((u) => u.id !== id)
+  writeDb(db)
   res.status(204).end()
 })
 
@@ -134,11 +151,13 @@ app.delete('/users/:id', requireAuth, (req, res) => {
 // Products (protected)
 // ---------------------------------------------------------------------------
 app.get('/products', requireAuth, (req, res) => {
-  res.json(products)
+  const db = readDb()
+  res.json(db.products)
 })
 
 app.get('/products/:id', requireAuth, (req, res) => {
-  const product = products.find((p) => p.id === Number(req.params.id))
+  const db = readDb()
+  const product = db.products.find((p) => p.id === Number(req.params.id))
   if (!product) return res.status(404).json({ message: 'Product not found' })
   res.json(product)
 })
@@ -149,14 +168,17 @@ app.post('/products', requireAuth, (req, res) => {
     return res.status(400).json({ message: 'name and price are required' })
   }
 
-  const product = { id: nextProductId++, name, price, description: description ?? '' }
-  products.push(product)
+  const db = readDb()
+  const product = { id: nextId(db.products), name, price, description: description ?? '' }
+  db.products.push(product)
+  writeDb(db)
   res.status(201).json(product)
 })
 
 app.put('/products/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id)
-  const product = products.find((p) => p.id === id)
+  const db = readDb()
+  const product = db.products.find((p) => p.id === id)
   if (!product) return res.status(404).json({ message: 'Product not found' })
 
   const { name, price, description } = req.body ?? {}
@@ -166,16 +188,19 @@ app.put('/products/:id', requireAuth, (req, res) => {
     ...(price !== undefined && { price }),
     ...(description !== undefined && { description }),
   }
-  products = products.map((p) => (p.id === id ? updated : p))
+  db.products = db.products.map((p) => (p.id === id ? updated : p))
+  writeDb(db)
   res.json(updated)
 })
 
 app.delete('/products/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id)
-  if (!products.some((p) => p.id === id)) {
+  const db = readDb()
+  if (!db.products.some((p) => p.id === id)) {
     return res.status(404).json({ message: 'Product not found' })
   }
-  products = products.filter((p) => p.id !== id)
+  db.products = db.products.filter((p) => p.id !== id)
+  writeDb(db)
   res.status(204).end()
 })
 

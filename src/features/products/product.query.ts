@@ -8,12 +8,14 @@ import {
     getProducts,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProduct
 } from './products.api';
 import type { IProduct } from './product.types';
 
 export const productKeys = {
     all: ['products'] as const,
+    detail: (id: number) => ['product', id] as const,
 };
 
 export const useProducts = () =>
@@ -21,6 +23,13 @@ export const useProducts = () =>
         queryKey: productKeys.all,
         queryFn: getProducts,
     });
+
+export const useGetProduct = (id: number) => {
+    return useQuery({
+        queryKey: productKeys.detail(id),
+        queryFn: () => getProduct(id)
+    });
+}
 
 export const useCreateProduct = () => {
     const queryClient = useQueryClient();
