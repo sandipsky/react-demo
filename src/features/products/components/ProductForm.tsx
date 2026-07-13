@@ -17,6 +17,8 @@ export const ProductForm = ({ mode, productId }: ProductFormProps) => {
   if (mode === 'view') {
     return (
       <>
+        <h1>View Product</h1>
+
         {isLoading &&
           <h1>Loading...</h1>
         }
@@ -40,20 +42,25 @@ export const ProductForm = ({ mode, productId }: ProductFormProps) => {
 
   return (
     <>
+      <h1>{mode === 'edit' ? 'Edit' : 'Add'} Product</h1>
+
+
       <div>
         <label>Name</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
 
-       <div>
+      <div>
         <label>Price</label>
         <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} />
       </div>
 
-       <div>
+      <div>
         <label>Description</label>
         <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
       </div>
+
+      <button>Save</button>
     </>
   )
 }
