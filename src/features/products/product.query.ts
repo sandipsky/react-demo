@@ -24,10 +24,11 @@ export const useProducts = () =>
         queryFn: getProducts,
     });
 
-export const useGetProduct = (id: number) => {
+export const useGetProduct = (id: number, enabled: boolean) => {
     return useQuery({
         queryKey: productKeys.detail(id),
-        queryFn: () => getProduct(id)
+        queryFn: () => getProduct(id),
+        enabled
     });
 }
 

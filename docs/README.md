@@ -16,6 +16,7 @@ actually understand it, not just copy-paste it.
 | 05 | [The products data layer: my first useQuery & useMutation](./05-products-data-layer-usequery-usemutation.md) | 2026-07-09 |
 | 06 | [Giving the mock server file persistence with db.json](./06-mock-server-file-persistence.md) | 2026-07-10 |
 | 07 | [Wiring the products UI to the data layer (list, view, delete)](./07-wiring-products-ui-to-the-data-layer.md) | 2026-07-10 |
+| 08 | [Making the form actually save: create & edit products](./08-saving-products-edit-and-create.md) | 2026-07-14 |
 
 ## How I write these docs
 
