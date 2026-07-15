@@ -1,10 +1,9 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
-//temporary
-const isAuthenticated = true;
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: ({ location }) => {
+    const isAuthenticated = !!localStorage.getItem('token');
     if (!isAuthenticated) {
       throw redirect({
         to: '/login',

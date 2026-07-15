@@ -17,6 +17,7 @@ actually understand it, not just copy-paste it.
 | 06 | [Giving the mock server file persistence with db.json](./06-mock-server-file-persistence.md) | 2026-07-10 |
 | 07 | [Wiring the products UI to the data layer (list, view, delete)](./07-wiring-products-ui-to-the-data-layer.md) | 2026-07-10 |
 | 08 | [Making the form actually save: create & edit products](./08-saving-products-edit-and-create.md) | 2026-07-14 |
+| 09 | [Real login authentication (token, guard & interceptor)](./09-real-login-authentication.md) | 2026-07-15 |
 
 ## How I write these docs
 
