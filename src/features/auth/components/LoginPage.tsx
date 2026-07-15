@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useLogin } from "../auth.query"
 import { useState } from "react";
+import { useAuthStore } from "../auth.store";
 
 export const LoginPage = () => {
     const login = useLogin();
@@ -9,12 +10,14 @@ export const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const setAuth = useAuthStore((s) => s.setAuth); 
+
     const handleLogin = () => {
         login.mutate(
             { email, password },
             {
                 onSuccess: (data) => {
-                    localStorage.setItem('token', data.token);
+                    setAuth(data.token, data.user);
                     navigate({ to: '/products' });
                 },
             },

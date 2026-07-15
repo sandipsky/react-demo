@@ -1,4 +1,5 @@
 import { config } from '@/config/env';
+import { useAuthStore } from '@/features/auth';
 import axios, { type AxiosError } from 'axios';
 
 export const apiClient = axios.create({
@@ -11,7 +12,7 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((requestConfig) => {
-  const token = localStorage.getItem('token');
+  const token = useAuthStore.getState().token;
   if (token) {
     requestConfig.headers.Authorization = `Bearer ${token}`;
   }
@@ -22,7 +23,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 403) {
-      //todo logout func
+      useAuthStore.getState().logout() 
       window.location.href = '/login';
     }
     return Promise.reject(error);
