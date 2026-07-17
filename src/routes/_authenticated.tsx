@@ -19,8 +19,11 @@ export const Route = createFileRoute('/_authenticated')({
 })
 
 function AuthenticatedLayout() {
+  const logout = useAuthStore((s) => s.logout);
+
   return <>
-    Auth
+    Welcome
+    <button onClick={logout}>Logout</button>
     <Outlet />
   </>
 }

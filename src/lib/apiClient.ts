@@ -23,8 +23,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 403) {
-      useAuthStore.getState().logout() 
-      window.location.href = '/login';
+      useAuthStore.getState().logout()
     }
     return Promise.reject(error);
   },

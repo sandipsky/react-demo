@@ -19,6 +19,8 @@ actually understand it, not just copy-paste it.
 | 08 | [Making the form actually save: create & edit products](./08-saving-products-edit-and-create.md) | 2026-07-14 |
 | 09 | [Real login authentication (token, guard & interceptor)](./09-real-login-authentication.md) | 2026-07-15 |
 | 10 | [Global state with Zustand: an auth store](./10-zustand-auth-store.md) | 2026-07-15 |
+| 11 | [React Hook Form + Zod in the product form](./11-react-hook-form-and-zod.md) | 2026-07-16 |
+| 12 | [Centralizing logout (and a CORS tweak)](./12-centralizing-logout-and-cors.md) | 2026-07-16 |
 
 ## How I write these docs
 

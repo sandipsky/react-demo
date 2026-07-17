@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { useGetProduct, useUpdateProduct, useCreateProduct } from "../product.query"
 import { useNavigate } from "@tanstack/react-router"
 
@@ -7,35 +10,42 @@ type ProductFormProps = {
   productId?: string          // present for edit + view, absent for add
 }
 
+const productSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  price: z.number().positive('Price must be greater than 0'),
+  description: z.string().min(1, 'Description is required'),
+})
+
+type ProductFormValues = z.infer<typeof productSchema>
+
 export const ProductForm = ({ mode, productId }: ProductFormProps) => {
 
 
   const { data, isLoading, isError } = useGetProduct(Number(productId), mode !== 'add');
-  const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
 
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, touchedFields,dirtyFields },
+  } = useForm<ProductFormValues>({
+    resolver: zodResolver(productSchema),
+    defaultValues: { name: '', price: 0, description: '' },
+    mode: 'onTouched',
+  });
+
   useEffect(() => {
     if (data) {
-      setName(data.name);
-      setPrice(String(data.price));     // price is a number in data, but state is string
-      setDescription(data.description);
+      reset({ name: data.name, price: data.price, description: data.description });
     }
-  }, [data]);
+  }, [data, reset]);
 
-  const handleSave = () => {
-    if (!name || !price) return;
-
-    const body = {
-      id: Number(productId),        // ignored by the server on create; used on update
-      name,
-      price: Number(price),         // state is a string → convert to number for the API
-      description,
-    };
+  const onSubmit = (values: ProductFormValues) => {
+    const body = { id: Number(productId), ...values };
 
     if (mode === 'edit') {
       updateProduct.mutate(
@@ -77,26 +87,29 @@ export const ProductForm = ({ mode, productId }: ProductFormProps) => {
   }
 
   return (
-    <>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <h1>{mode === 'edit' ? 'Edit' : 'Add'} Product</h1>
 
 
       <div>
         <label>Name</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+        <input type="text" {...register('name')} />
+        {(touchedFields.name || dirtyFields.name) && errors.name && <p>{errors.name.message}</p>}
       </div>
 
       <div>
         <label>Price</label>
-        <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <input type="number" {...register('price', { valueAsNumber: true })} />
+        {errors.price && <p>{errors.price.message}</p>}
       </div>
 
       <div>
         <label>Description</label>
-        <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+        <input type="text" {...register('description')} />
+        {errors.description && <p>{errors.description.message}</p>}
       </div>
 
-      <button onClick={handleSave}>Save</button>
-    </>
+      <button type="submit" disabled={createProduct.isPending || updateProduct.isPending}>Save</button>
+    </form>
   )
 }
