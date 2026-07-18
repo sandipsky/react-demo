@@ -1,10 +1,11 @@
+
+import { useAuthStore } from '@/features/auth';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
-//temporary
-const isAuthenticated = true;
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: ({ location }) => {
+    const isAuthenticated = !!useAuthStore.getState().token;
     if (!isAuthenticated) {
       throw redirect({
         to: '/login',
@@ -18,8 +19,11 @@ export const Route = createFileRoute('/_authenticated')({
 })
 
 function AuthenticatedLayout() {
+  const logout = useAuthStore((s) => s.logout);
+
   return <>
-    Auth
+    Welcome
+    <button onClick={logout}>Logout</button>
     <Outlet />
   </>
 }

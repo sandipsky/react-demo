@@ -9,7 +9,7 @@ const PORT = 3000
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: true,          // reflect whatever origin sent the request (allow any)
     credentials: true,
   }),
 )

@@ -314,7 +314,7 @@ updates the price and leaves the other fields alone — a partial update.
 
 ---
 
-## Things that tripped up / notes to self
+## Things that tripped me up / notes to self
 
 - **The `VITE_` prefix is mandatory.** An env var without it simply doesn't exist in
   frontend code. It's a guard against leaking secrets into the bundle.
@@ -325,6 +325,8 @@ updates the price and leaves the other fields alone — a partial update.
   403 = "authenticated but not allowed (I know who you are — no)". So for a missing
   token, 401 is the conventional choice — and it's what my interceptor listens for.
   Either the middleware should return 401, or the interceptor should also handle 403.
+  *(Update: resolved in [entry 12](./12-centralizing-logout-and-cors.md) — I ended up
+  standardizing on **403** on both sides, not 401.)*
 - **zod is missing from `package.json`.** `env.ts` imports it, and it works only
   because some other package happened to install it transitively. On a fresh clone it
   would break. Fix: `npm install zod`.
@@ -334,7 +336,7 @@ updates the price and leaves the other fields alone — a partial update.
 ## What's next
 
 - [ ] `npm install zod` to make it an explicit dependency
-- [ ] Fix the 401/403 mismatch between mock server and interceptor
+- [x] Fix the 401/403 mismatch between mock server and interceptor — settled on 403 (entry 12)
 - [ ] Build the login form and call `POST /auth/login`, store the returned token
 - [ ] Replace the hardcoded `"dummy"` token in the request interceptor with the real one
 - [ ] First `useQuery`: fetch `/products` in `ProductList`
